@@ -1,33 +1,40 @@
+import { IsNumber, IsString } from 'class-validator';
 import { FilmEntity } from './films.entity';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('schedules')
 export class ScheduleEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   id: string;
 
   @Column()
+  @IsString()
   daytime: string;
 
   @Column()
+  @IsNumber()
   hall: number;
 
   @Column()
+  @IsNumber()
   rows: number;
 
   @Column()
+  @IsNumber()
   seats: number;
 
-  @Column({ type: 'double precision' })
+  @Column()
+  @IsNumber()
   price: number;
 
-  @Column('simple-array')
-  taken: string[];
+  @Column()
+  @IsNumber()
+  taken: string;
 
   @Column()
+  @IsNumber()
   filmId: string;
 
   @ManyToOne(() => FilmEntity, (film) => film.schedule)
-  @JoinColumn({ name: 'filmId' })
   film: FilmEntity;
 }
