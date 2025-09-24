@@ -1,4 +1,9 @@
-import { Injectable, Inject, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { FilmsRepository } from '../repository/films.repository';
 import { FilmsPostgreRepository } from '../repository/filmsPostgre.repository';
 import { OrderDataDto, TicketDto } from './dto/order.dto';
@@ -56,7 +61,8 @@ export class OrderService {
       }
     } else {
       const film = await this.filmsRepository.findFilmById(filmId);
-      film.schedule[scheduleIndex].taken = film.schedule[scheduleIndex].taken + `,${place}`;
+      film.schedule[scheduleIndex].taken =
+        film.schedule[scheduleIndex].taken + `,${place}`;
       try {
         await this.filmsRepository.updateFilm(film);
       } catch {

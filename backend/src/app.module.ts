@@ -8,6 +8,7 @@ import { OrderController } from './order/order.controller';
 import { FilmsService } from './films/films.service';
 import { OrderService } from './order/order.service';
 import { DatabaseModule } from './database/database.module';
+import { FilmsRepository } from './repository/films.repository';
 
 @Module({
   imports: [
@@ -22,7 +23,6 @@ import { DatabaseModule } from './database/database.module';
     DatabaseModule.register(applicationConfig.DATABASE_DRIVER),
   ],
   controllers: [FilmsController, OrderController],
-  providers: [configProvider, FilmsService, OrderService],
+  providers: [configProvider, FilmsService, OrderService, FilmsRepository],
 })
 export class AppModule {}
-

@@ -1,6 +1,6 @@
 import { IsNumber, IsString } from 'class-validator';
 import { FilmEntity } from './films.entity';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('schedules')
 export class ScheduleEntity {

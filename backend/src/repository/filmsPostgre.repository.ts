@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FilmEntity } from '../films/entities/films.entity';
 import { Repository } from 'typeorm';
@@ -18,14 +18,15 @@ export class FilmsPostgreRepository {
     return { total, items };
   }
 
-  async findFilmById(id: string): Promise<FilmEntity> {
+  async findFilmById(id: string): Promise<FilmEntity | null> {
     try {
-      return this.filmRepository.findOne({
+      return await this.filmRepository.findOne({
         where: { id },
         relations: { schedule: true },
       });
-    } catch {
-      throw new NotFoundException(`Фильм не найден`);
+    } catch (error) {
+      console.error(`Ошибка при запросе к базе данных: ${error}`);
+      throw error;
     }
   }
 

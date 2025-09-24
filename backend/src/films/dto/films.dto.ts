@@ -1,5 +1,13 @@
 //TODO описать DTO для запросов к /films
-import { IsNumber, IsFQDN, IsNotEmpty, IsString, Min, Max, IsArray } from 'class-validator';
+import {
+  IsNumber,
+  IsFQDN,
+  IsNotEmpty,
+  IsString,
+  Min,
+  Max,
+  IsArray,
+} from 'class-validator';
 
 export class GetScheduleDTO {
   id: string;
