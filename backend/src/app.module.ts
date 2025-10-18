@@ -20,7 +20,13 @@ import { FilmsRepository } from './repository/films.repository';
       rootPath: path.join(__dirname, '..', 'public'),
       renderPath: '/content/afisha/',
     }),
-    DatabaseModule.register(applicationConfig.DATABASE_DRIVER),
+    (() => {
+      console.log('Подключаемся к базе данных:', {
+        database_driver: applicationConfig.DATABASE_DRIVER,
+        database_url: applicationConfig.DATABASE_URL,
+      });
+      return DatabaseModule.register(applicationConfig.DATABASE_DRIVER);
+    })(),
   ],
   controllers: [FilmsController, OrderController],
   providers: [configProvider, FilmsService, OrderService, FilmsRepository],

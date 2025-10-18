@@ -1,0 +1,116 @@
+services:
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+    env_file:
+      .env
+    networks:
+      - internal
+    restart: unless-stopped
+
+  backend:
+    image: ghcr.io/korvintag/backend
+    container_name: backend
+    ports:
+      - "3000:3000"
+    build: 
+      context: ./backend # директория сборки (контекст)
+      dockerfile: Dockerfile # Имя файла описания контейнера (Dockerfile)
+    env_file:
+      .env
+    networks:
+      - internal
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  pginit:
+    image: ghcr.io/korvintag/pginit
+    container_name: pginit
+    build: 
+      context: ./backend/test # директория сборки (контекст)
+      dockerfile: Dockerfile # Имя файла описания контейнера (Dockerfile)
+    env_file:
+      .env
+    networks:
+      - internal
+    depends_on:
+      - postgres
+      - backend
+    restart: on-failure
+
+  frontend:
+    image: ghcr.io/korvintag/frontend
+    container_name: frontend
+    build: 
+      context: ./frontend # директория сборки (контекст)
+      dockerfile: Dockerfile # Имя файла описания контейнера (Dockerfile)
+    volumes:
+      - frontend:/app/dist
+
+  nginx:
+    image: nginx:1.19-alpine
+    container_name: nginx
+    env_file:
+      .env
+    ports:
+      - "80:80"
+      - 443:443
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/letsencrypt/:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - frontend:/opt/site:ro
+    networks:
+      - internal
+      - internet
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    networks:
+      - internet
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    env_file:
+      .env
+    networks:
+      - internet
+      - internal
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  db:
+    name: db
+  pgadmin:
+    name: pgadmin
+  frontend:
+    name: frontend
+
+networks:
+  internal:
+    name: internal
+    driver: bridge
+    internal: true
+  internet:
+    name: internet
+    driver: bridge
