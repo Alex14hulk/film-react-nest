@@ -8,7 +8,6 @@ import { OrderController } from './order/order.controller';
 import { FilmsService } from './films/films.service';
 import { OrderService } from './order/order.service';
 import { DatabaseModule } from './database/database.module';
-import { FilmsRepository } from './repository/films.repository';
 
 @Module({
   imports: [
@@ -29,6 +28,6 @@ import { FilmsRepository } from './repository/films.repository';
     })(),
   ],
   controllers: [FilmsController, OrderController],
-  providers: [configProvider, FilmsService, OrderService, FilmsRepository],
+  providers: [configProvider, FilmsService, OrderService],
 })
 export class AppModule {}

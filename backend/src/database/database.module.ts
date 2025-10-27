@@ -33,13 +33,14 @@ export class DatabaseModule {
         imports.push(
           TypeOrmModule.forRoot({
             type: 'postgres',
-            host: applicationConfig.DATABASE_HOST,
-            port: +applicationConfig.DATABASE_PORT,
-            username: applicationConfig.DATABASE_USERNAME,
-            password: applicationConfig.DATABASE_PASSWORD,
-            database: applicationConfig.DATABASE_NAME,
+            host: applicationConfig.DB_HOST,
+            port: +applicationConfig.DB_PORT,
+            username: applicationConfig.POSTGRES_USER,
+            password: applicationConfig.POSTGRES_PASSWORD,
+            database: applicationConfig.POSTGRES_DB,
             entities: [FilmEntity, ScheduleEntity],
             synchronize: false,
+            logging: true,
           }),
           TypeOrmModule.forFeature([FilmEntity, ScheduleEntity]),
         );
