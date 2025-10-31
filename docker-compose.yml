@@ -3,17 +3,14 @@ services:
     image: postgres:16.4
     container_name: database
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: films
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+     # - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
-      - '5432:5432'
+      - '5433:5432'
     networks:
       - internal
     env_file:
@@ -47,23 +44,21 @@ services:
 
   backend:
     image: 'ghcr.io/${OWNER}/backend:latest'
-    build: 
+    build:
       context: backend
     environment:
       PORT: 3000
       DEBUG: '*'
-      DATABASE_DRIVER: 'postgres'
-      DATABASE_URL: 'postgres://database:5432/postgres'
-      DATABASE_USERNAME: postgres
-      DATABASE_PASSWORD: admin
+      DATABASE_DRIVER: ${DATABASE_DRIVER}
+      DATABASE_URL: ${DATABASE_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
     ports:
       - 3000:3000
     networks:
       - internal
     depends_on:
       - database
-    env_file:
-      - .env
 
   server:
     image: 'ghcr.io/${OWNER}/server:latest'
