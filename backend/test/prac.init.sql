@@ -1,8 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-create database prac
-    with owner prac;
-
 create table public.films
 (
     id          uuid default uuid_generate_v4() not null
@@ -19,7 +16,7 @@ create table public.films
 );
 
 alter table public.films
-    owner to prac;
+    owner to postgres;
 
 create table public.schedules
 (
@@ -38,4 +35,4 @@ create table public.schedules
 );
 
 alter table public.schedules
-    owner to prac;
+    owner to postgres;

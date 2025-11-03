@@ -1,28 +1,34 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { FilmsRepository } from '../repository/films.repository';
-import { FilmsPostgreRepository } from '../repository/filmsPostgre.repository';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { FilmEntity } from './entities/films.entity';
 
 @Injectable()
 export class FilmsService {
   constructor(
-    @Inject('FILMS_REPOSITORY')
-    private readonly filmsRepository: FilmsRepository | FilmsPostgreRepository,
+    @InjectRepository(FilmEntity)
+    private readonly filmsRepository: Repository<FilmEntity>,
   ) {}
 
   async getAllFilms() {
-    return this.filmsRepository.findAllFilms();
+    return this.filmsRepository.find({
+      relations: ['schedule']
+    });
   }
 
   async getScheduleFilm(id: string) {
-    let film;
-    if (this.filmsRepository instanceof FilmsRepository) {
-      film = (await this.filmsRepository.findFilmById(id)).toObject();
-    } else {
-      film = await this.filmsRepository.findFilmById(id);
+    const film = await this.filmsRepository.findOne({
+      where: { id },
+      relations: ['schedule']
+    });
+
+    if (!film) {
+      throw new Error('Film not found');
     }
+
     return {
-      total: film.schedule.length,
-      items: film.schedule,
+      total: film.schedule?.length || 0,
+      items: film.schedule || [],
     };
   }
 }

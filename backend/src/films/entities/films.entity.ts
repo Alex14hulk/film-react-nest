@@ -4,7 +4,7 @@ import { ScheduleEntity } from './schedule.entity';
 
 @Entity('films')
 export class FilmEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
@@ -39,7 +39,7 @@ export class FilmEntity {
   @IsString()
   description: string;
 
-  @OneToMany(() => ScheduleEntity, (schedule) => schedule.film, {
+  @OneToMany(() => ScheduleEntity, schedule => schedule.film, {
     cascade: true,
   })
   schedule: ScheduleEntity[];

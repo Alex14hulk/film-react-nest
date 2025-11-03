@@ -1,73 +1,67 @@
 import {
   Injectable,
-  Inject,
   BadRequestException,
   ConflictException,
 } from '@nestjs/common';
-import { FilmsRepository } from '../repository/films.repository';
-import { FilmsPostgreRepository } from '../repository/filmsPostgre.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { FilmEntity } from '../films/entities/films.entity';
+import { ScheduleEntity } from '../films/entities/schedule.entity';
 import { OrderDataDto, TicketDto } from './dto/order.dto';
 
 @Injectable()
 export class OrderService {
   constructor(
-    @Inject('FILMS_REPOSITORY')
-    private readonly filmsRepository: FilmsRepository | FilmsPostgreRepository,
+    @InjectRepository(FilmEntity)
+    private readonly filmsRepository: Repository<FilmEntity>,
+    @InjectRepository(ScheduleEntity)
+    private readonly schedulesRepository: Repository<ScheduleEntity>,
   ) {}
 
   async createOrder(
     orderData: OrderDataDto,
   ): Promise<{ items: TicketDto[]; total: number }> {
     const tickets = orderData.tickets;
+    
     for (const ticket of tickets) {
-      if (this.filmsRepository instanceof FilmsRepository) {
-        const film = (
-          await this.filmsRepository.findFilmById(ticket.film)
-        ).toObject();
-        const scheduleIndex = await this.filmsRepository.findFilmSchedule(
-          ticket.film,
-          ticket.session,
-        );
-        const place = `${ticket.row}:${ticket.seat}`;
+      // Находим расписание по filmId и daytime (session)
+      const schedule = await this.schedulesRepository.findOne({
+        where: {
+          filmId: ticket.film,
+          daytime: ticket.session,
+        },
+        relations: ['film'], // Загружаем связанный фильм
+      });
 
-        if (film.schedule[scheduleIndex].taken.includes(place)) {
-          throw new BadRequestException(`Место занято`);
-        }
-        this.updateSeats(ticket.film, scheduleIndex, place);
-      } else {
-        const film = await this.filmsRepository.findFilmById(ticket.film);
-        const scheduleIndex = await this.filmsRepository.findFilmSchedule(
-          ticket.film,
-          ticket.session,
-        );
-        const place = `${ticket.row}:${ticket.seat}`;
-        if (film.schedule[scheduleIndex].taken.split(',').includes(place)) {
-          throw new BadRequestException(`Место занято`);
-        }
-        this.updateSeats(ticket.film, scheduleIndex, place);
+      if (!schedule) {
+        throw new BadRequestException(`Сеанс ${ticket.session} не найден для фильма с ID ${ticket.film}`);
       }
+
+      const place = `${ticket.row}:${ticket.seat}`;
+
+      // Проверяем, занято ли место
+      if (schedule.taken && schedule.taken.split(',').includes(place)) {
+        throw new BadRequestException(`Место ${place} уже занято`);
+      }
+
+      await this.updateSeats(schedule, place);
     }
+    
     return { items: tickets, total: tickets.length };
   }
 
-  async updateSeats(filmId: string, scheduleIndex: number, place: string) {
-    if (this.filmsRepository instanceof FilmsRepository) {
-      const film = await this.filmsRepository.findFilmById(filmId);
-      const scheduleTakenPlace = `schedule.${scheduleIndex.toString()}.taken`;
-      try {
-        await film.updateOne({ $push: { [scheduleTakenPlace]: place } });
-      } catch {
-        new ConflictException('Ошибка при обновлении данных');
-      }
+  private async updateSeats(schedule: ScheduleEntity, place: string): Promise<void> {
+    // Обновляем занятые места
+    if (!schedule.taken) {
+      schedule.taken = place;
     } else {
-      const film = await this.filmsRepository.findFilmById(filmId);
-      film.schedule[scheduleIndex].taken =
-        film.schedule[scheduleIndex].taken + `,${place}`;
-      try {
-        await this.filmsRepository.updateFilm(film);
-      } catch {
-        new ConflictException('Ошибка при обновлении данных');
-      }
+      schedule.taken += `,${place}`;
+    }
+
+    try {
+      await this.schedulesRepository.save(schedule);
+    } catch (error) {
+      throw new ConflictException('Ошибка при обновлении данных о местах');
     }
   }
 }

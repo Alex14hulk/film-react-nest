@@ -44,11 +44,6 @@ export class DatabaseModule {
           }),
           TypeOrmModule.forFeature([FilmEntity, ScheduleEntity]),
         );
-        providers.push({
-          provide: 'FILMS_REPOSITORY',
-          useClass: FilmsPostgreRepository,
-        });
-        exports.push('FILMS_REPOSITORY');
         break;
     }
 
