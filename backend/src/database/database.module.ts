@@ -6,7 +6,6 @@ import { FilmEntity } from '../films/entities/films.entity';
 import { ScheduleEntity } from '../films/entities/schedule.entity';
 import { Film, FilmSchema } from '../films/schemas/films.schema';
 import { FilmsRepository } from '../repository/films.repository';
-import { FilmsPostgreRepository } from '../repository/filmsPostgre.repository';
 
 @Module({})
 export class DatabaseModule {
