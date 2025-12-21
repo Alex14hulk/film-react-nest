@@ -7,11 +7,13 @@ export const configProvider = {
   provide: 'CONFIG',
   useValue: <AppConfig>{
     database: {
-      host: process.env.DATABASE_HOST || 'localhost',
-      driver: process.env.DATABASE_DRIVER || 'mongodb',
-      url: process.env.DATABASE_URL || 'mongodb://localhost:27017/prac',
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT) || 5173,
+      driver: 'postgres',
+      url: process.env.DATABASE_URL || 'postgres://localhost:5173/database',
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      name: process.env.DB_NAME,
     },
   },
 };
@@ -25,8 +27,4 @@ export interface AppConfigDatabase {
   url: string;
   username: string;
   password: string;
-}
-
-export interface AppConfig {
-  database: AppConfigDatabase;
 }
