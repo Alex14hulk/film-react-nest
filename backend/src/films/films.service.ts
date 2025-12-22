@@ -11,9 +11,13 @@ export class FilmsService {
   ) {}
 
   async getAllFilms() {
-    return this.filmsRepository.find({
-      relations: ['schedule']
+    const films = await this.filmsRepository.find({
+      relations: ['schedule'],
     });
+
+    return {
+      items: films,
+    };
   }
 
   async getScheduleFilm(id: string) {

@@ -8,7 +8,7 @@ export const configProvider = {
   useValue: <AppConfig>{
     database: {
       host: process.env.DB_HOST || 'localhost',
-      port: Number(process.env.DB_PORT) || 5173,
+      port: Number(process.env.DB_PORT),
       driver: 'postgres',
       url: process.env.DATABASE_URL || 'postgres://localhost:5173/database',
       username: process.env.DB_USERNAME,
