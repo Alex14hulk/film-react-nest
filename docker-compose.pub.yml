@@ -2,17 +2,14 @@ services:
   database:
     image: postgres:16.4
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: postgres
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
-      - '5432:5432'
+      - '5435:5432'
     networks:
       - internal
     env_file:
@@ -41,20 +38,23 @@ services:
       VITE_CDN_URL: /content/afisha
     volumes:
       - frontend_build:/app/dist
+    networks:
+      - internal
 
   backend:
     image: 'ghcr.io/${OWNER}/backend:latest'
     environment:
-      PORT: 3000
-      DEBUG: '*'
-      DATABASE_DRIVER: 'postgres'
-      DATABASE_URL: 'postgresql://database:5432/${DB_NAME}'
-      DATABASE_USERNAME: postgres
-      DATABASE_PASSWORD: admin
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=mysecretpassword
+      - DB_NAME=postgres
     ports:
       - 3000:3000
     networks:
-      - internal
+      internal:
+        aliases:
+          - backend
     depends_on:
       - database
     env_file:
@@ -67,8 +67,8 @@ services:
     volumes:
       - frontend_build:/var/www
     depends_on:
-      - frontend
       - backend
+      - frontend
     networks:
       - internal
 

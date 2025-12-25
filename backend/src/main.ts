@@ -25,6 +25,6 @@ async function bootstrap() {
       app.useLogger(new TskvLogger());
       break;
   }
-  await app.listen(3000);
+  await app.listen(3000, '0.0.0.0');
 }
 bootstrap();

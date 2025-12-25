@@ -41,6 +41,8 @@ services:
       VITE_CDN_URL: /content/afisha
     volumes:
       - frontend_build:/app/dist
+    networks:
+      - internal
 
   backend:
     image: 'ghcr.io/${OWNER}/backend:latest'
@@ -55,7 +57,9 @@ services:
     ports:
       - 3000:3000
     networks:
-      - internal
+      internal:
+        aliases:
+          - backend
     depends_on:
       - database
 
@@ -68,10 +72,12 @@ services:
     volumes:
       - frontend_build:/var/www
     depends_on:
-      - frontend
       - backend
+      - frontend
     networks:
-      - internal
+      internal:
+        aliases:
+          - server
 
 volumes:
   db_data:

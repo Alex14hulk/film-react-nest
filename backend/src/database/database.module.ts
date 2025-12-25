@@ -38,7 +38,7 @@ export class DatabaseModule {
             password: applicationConfig.DB_PASSWORD,
             database: applicationConfig.DB_NAME,
             entities: [FilmEntity, ScheduleEntity],
-            synchronize: false,
+            synchronize: true,
             logging: true,
           }),
           TypeOrmModule.forFeature([FilmEntity, ScheduleEntity]),
