@@ -11,7 +11,7 @@ async function bootstrap() {
     bufferLogs: true,
   });
   const loggerType = process.env.LOGGER || 'dev';
-  app.setGlobalPrefix('api/afisha');
+  app.setGlobalPrefix('api');
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   switch (loggerType) {
@@ -28,3 +28,4 @@ async function bootstrap() {
   await app.listen(3000, '0.0.0.0');
 }
 bootstrap();
+

@@ -1,17 +1,26 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { FilmsService } from './films.service';
 
-@Controller('films')
+@Controller('afisha/films')
 export class FilmsController {
   constructor(private readonly filmsService: FilmsService) {}
 
   @Get()
-  getAllFilms() {
-    return this.filmsService.getAllFilms();
+  async getAllFilms() {
+    const result = await this.filmsService.getAllFilms();
+
+    return {
+      items: result.items,
+    };
   }
 
   @Get(':id/schedule')
-  getFilmSchedule(@Param('id') id: string) {
-    return this.filmsService.getScheduleFilm(id);
+  async getFilmSchedule(@Param('id') id: string) {
+    const result = await this.filmsService.getScheduleFilm(id);
+
+    return {
+      total: result.total,
+      items: result.items,
+    };
   }
 }
