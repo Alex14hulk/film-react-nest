@@ -10,29 +10,28 @@ export class FilmsService {
     private readonly filmsRepository: Repository<FilmEntity>,
   ) {}
 
-  async getAllFilms() {
+  // Возвращаем объект с полем items
+  async getAllFilms(): Promise<{ items: FilmEntity[] }> {
     const films = await this.filmsRepository.find({
       relations: ['schedule'],
     });
 
     return {
-      items: films,
+      items: films || [],
     };
   }
 
-  async getScheduleFilm(id: string) {
+  // Возвращаем объект с total и items
+  async getScheduleFilm(id: string): Promise<{ total: number; items: any[] }> {
     const film = await this.filmsRepository.findOne({
       where: { id },
-      relations: ['schedule']
+      relations: ['schedule'],
     });
 
-    if (!film) {
-      throw new Error('Film not found');
-    }
-
     return {
-      total: film.schedule?.length || 0,
-      items: film.schedule || [],
+      total: film?.schedule?.length || 0,
+      items: film?.schedule || [],
     };
   }
 }
+
