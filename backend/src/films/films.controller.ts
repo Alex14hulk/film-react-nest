@@ -9,9 +9,7 @@ export class FilmsController {
   async getAllFilms() {
     const films = await this.filmsService.getAllFilms();
 
-    return {
-      items: films,
-    };
+    return films;
   }
 
   @Get(':id/schedule')
