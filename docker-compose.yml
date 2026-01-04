@@ -1,0 +1,88 @@
+services:
+  database:
+    image: postgres:16.4
+    container_name: database
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+     #- ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - '5435:5432'
+    networks:
+      - internal
+    env_file:
+      - .env
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - '8080:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - internal
+
+  frontend:
+    image: 'ghcr.io/${OWNER}/frontend:latest'
+    build:
+      context: frontend
+    container_name: frontend
+    environment:
+      VITE_BASE_URL: /
+      VITE_API_URL: /api/afisha
+      VITE_CDN_URL: /content/afisha
+    volumes:
+      - frontend_build:/app/dist
+    networks:
+      - internal
+
+  backend:
+    image: 'ghcr.io/${OWNER}/backend:latest'
+    build:
+      context: backend
+    environment:
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=mysecretpassword
+      - DB_NAME=postgres
+    ports:
+      - 3000:3000
+    networks:
+      internal:
+        aliases:
+          - backend
+    depends_on:
+      - database
+
+  server:
+    image: 'ghcr.io/${OWNER}/server:latest'
+    build:
+      context: nginx
+    ports:
+      - 81:80
+    volumes:
+      - frontend_build:/var/www
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      internal:
+        aliases:
+          - server
+
+volumes:
+  db_data:
+  pgadmin-data:
+  frontend_build:
+
+networks:
+  internal:

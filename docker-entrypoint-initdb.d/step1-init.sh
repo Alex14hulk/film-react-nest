@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+
+psql -v ON_ERROR_STOP=1 --username "$DB_USERNAME" --dbname "$DB_NAME" <<-EOSQL
+  CREATE USER "$DB_USERNAME" PASSWORD '$DB_PASSWORD';
+  CREATE DATABASE films;
+  GRANT ALL PRIVILEGES ON DATABASE films TO "$DB_USERNAME";
+EOSQL
